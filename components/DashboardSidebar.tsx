@@ -23,7 +23,7 @@ export default function DashboardSidebar() {
       <div className="px-6 py-5 border-b border-white/[0.08]">
         <Link href="/">
           <Image
-            src="/images/logo-blue-bg.jpg"
+            src="/logo-blue-bg.jpg"
             alt="Lucid Hub"
             width={110}
             height={42}
