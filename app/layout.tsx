@@ -16,11 +16,11 @@ export const metadata: Metadata = {
     title: 'Lucid Hub — Inspire. Empower. Transform.',
     description:
       'Equipping the next generation of African leaders through world-class mentorship, live training, and community.',
-    images: ['/images/logo-blue-bg.jpg'],
+    images: ['/logo-blue-bg.jpg'],
     type: 'website',
   },
   icons: {
-    icon: '/images/logo-mark.png',
+    icon: '/logo-mark.png',
   },
 }
 
