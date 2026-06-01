@@ -41,7 +41,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/">
               <Image
-                src="/images/logo-blue-bg.jpg"
+                src="/logo-blue-bg.jpg"
                 alt="Lucid Hub"
                 width={120}
                 height={46}
