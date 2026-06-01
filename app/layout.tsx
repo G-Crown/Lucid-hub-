@@ -26,21 +26,6 @@ export const metadata: Metadata = {
     icon: '/logo-mark.png',
   },
 }
-  description:
-    "Africa's premier leadership development platform. World-class mentorship, live training, conferences, and a transformative learning community.",
-  keywords: ['leadership', 'mentorship', 'Nigeria', 'Africa', 'training', 'Lucid Hub'],
-  authors: [{ name: 'Lucid Hub', url: 'https://lucidhub.org' }],
-  openGraph: {
-    title: 'Lucid Hub — Inspire. Empower. Transform.',
-    description:
-      'Equipping the next generation of African leaders through world-class mentorship, live training, and community.',
-    images: ['/logo-blue-bg.jpg'],
-    type: 'website',
-  },
-  icons: {
-    icon: '/logo-mark.png',
-  },
-}
 
 export default function RootLayout({
   children,
