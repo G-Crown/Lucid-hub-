@@ -321,9 +321,8 @@ export default function HomePage() {
           Early access to events, new resources, and leadership insights — monthly.
         </p>
         <form
-          action={`mailto:lucidhub.info@gmail.com`}
+          action="mailto:lucidhub.info@gmail.com"
           className="flex flex-wrap gap-3 max-w-md mx-auto justify-center"
-          onSubmit={(e) => e.preventDefault()}
         >
           <input
             type="email"
