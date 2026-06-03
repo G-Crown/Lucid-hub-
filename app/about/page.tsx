@@ -1,0 +1,139 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import Image from 'next/image'
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'Learn about Lucid Hub — our mission, vision, and the team behind Africa\'s leading leadership development platform.',
+}
+
+export default function AboutPage() {
+  return (
+    <>
+      {/* HERO */}
+      <section className="bg-[#0A1628] pt-32 pb-20 px-[5%]">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="inline-flex items-center gap-2 bg-[#F5AB00]/10 border border-[#F5AB00]/30 rounded-full px-4 py-1.5 text-[#F5AB00] text-xs font-bold tracking-widest uppercase mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F5AB00] animate-pulse-dot" />
+            Our Story
+          </p>
+          <h1 className="font-serif text-5xl font-bold text-white leading-tight mb-6">
+            We Build Leaders Who <em className="italic text-[#F5AB00]">Build Nations</em>
+          </h1>
+          <p className="text-white/55 text-xl leading-relaxed max-w-2xl mx-auto">
+            Lucid Hub exists at the intersection of mentorship, community, and transformation.
+            We believe every young African professional deserves access to world-class leadership development.
+          </p>
+        </div>
+      </section>
+
+      {/* MISSION / VISION */}
+      <section className="py-24 px-[5%] bg-[#F7F5F0]">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="flex items-center gap-2 text-[#1A1AFF] text-xs font-bold tracking-[0.12em] uppercase mb-4">
+              <span className="block w-7 h-0.5 bg-[#1A1AFF] rounded" />
+              Mission & Vision
+            </p>
+            <h2 className="font-serif text-4xl font-bold text-[#0A1628] leading-tight mb-6">
+              Why <em className="italic text-[#1A1AFF]">Lucid Hub</em> Exists
+            </h2>
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl p-6 border border-[#EDE9E1]">
+                <div className="text-2xl mb-3">🎯</div>
+                <h3 className="font-serif text-xl font-semibold text-[#0A1628] mb-2">Our Mission</h3>
+                <p className="text-[#5A6272] leading-relaxed">
+                  To inspire, equip, and connect the next generation of African leaders through structured mentorship,
+                  transformative training, and a values-driven community.
+                </p>
+              </div>
+              <div className="bg-white rounded-2xl p-6 border border-[#EDE9E1]">
+                <div className="text-2xl mb-3">🌍</div>
+                <h3 className="font-serif text-xl font-semibold text-[#0A1628] mb-2">Our Vision</h3>
+                <p className="text-[#5A6272] leading-relaxed">
+                  A continent where every young professional has the skills, network, and clarity to lead with
+                  purpose — and the tools to transform their community.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            {[
+              { num: '12,000+', label: 'Leaders Trained', color: 'bg-[#1A1AFF]' },
+              { num: '340+',    label: 'Verified Mentors', color: 'bg-[#F5AB00]' },
+              { num: '19',      label: 'States Active', color: 'bg-[#0F6E56]' },
+              { num: '94%',     label: 'Employment Rate Post-Programme', color: 'bg-[#1A1AFF]' },
+            ].map((s) => (
+              <div key={s.label} className="bg-white rounded-2xl p-6 border border-[#EDE9E1] flex items-center gap-5">
+                <div className={`${s.color} rounded-xl w-14 h-14 flex items-center justify-center shrink-0`}>
+                  <span className="font-serif text-lg font-bold text-white">{s.num.replace(/[^0-9]/g, '').slice(0,2) || '#'}</span>
+                </div>
+                <div>
+                  <div className="font-serif text-3xl font-bold text-[#0A1628]">{s.num}</div>
+                  <div className="text-sm text-[#9CA3AF] uppercase tracking-wide mt-1">{s.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VALUES */}
+      <section className="py-24 px-[5%] bg-[#0A1628]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="flex items-center justify-center gap-2 text-[#F5AB00] text-xs font-bold tracking-[0.12em] uppercase mb-3">
+              <span className="block w-7 h-0.5 bg-[#F5AB00] rounded" />
+              Core Values
+            </p>
+            <h2 className="font-serif text-4xl font-bold text-white">What We Stand For</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: '💡', title: 'Inspire', desc: 'We create environments and experiences that spark possibility and expand what people believe they can achieve.' },
+              { icon: '⚡', title: 'Empower', desc: 'We equip leaders with practical tools, mentorship, and community so they can act with confidence and clarity.' },
+              { icon: '🔄', title: 'Transform', desc: 'We measure success not in events held, but in lives changed, careers launched, and communities elevated.' },
+            ].map((v) => (
+              <div key={v.title} className="border border-white/10 rounded-2xl p-8 bg-white/[0.03]">
+                <div className="text-4xl mb-4">{v.icon}</div>
+                <h3 className="font-serif text-xl font-semibold text-white mb-3">{v.title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed">{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AFFILIATIONS */}
+      <section className="py-20 px-[5%] bg-[#F7F5F0]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-serif text-3xl font-bold text-[#0A1628] mb-4">Affiliated With</h2>
+          <p className="text-[#5A6272] mb-10">Trusted partnerships that extend our reach and impact.</p>
+          <div className="flex flex-wrap items-center justify-center gap-8">
+            {['RCCG Central Missions Board', 'International Missions Committee', 'Avodah Finance'].map((org) => (
+              <div key={org} className="bg-white border border-[#EDE9E1] rounded-xl px-6 py-4 text-sm font-semibold text-[#0A1628]">
+                {org}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 px-[5%] bg-[#1A1AFF] text-center">
+        <h2 className="font-serif text-3xl font-bold text-white mb-4">Ready to Join the Movement?</h2>
+        <p className="text-white/65 mb-8 max-w-md mx-auto">Your next step as a leader starts here.</p>
+        <div className="flex flex-wrap gap-4 justify-center">
+          <Link href="/events" className="bg-[#F5AB00] text-[#0A1628] px-6 py-3 rounded font-bold text-sm hover:bg-[#FFD54F] transition-colors">
+            Explore Events →
+          </Link>
+          <Link href="/mentorship" className="border-2 border-white/30 text-white px-6 py-3 rounded font-medium text-sm hover:border-white/60 transition-colors">
+            Apply for Mentorship
+          </Link>
+        </div>
+      </section>
+    </>
+  )
+}
