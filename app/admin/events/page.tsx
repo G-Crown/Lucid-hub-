@@ -1,49 +1,174 @@
-import type { Metadata } from 'next'
-export const metadata: Metadata = { title: 'Manage Events' }
-export default function AdminEventsPage() {
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function EventsPage() {
+  const supabase = await createClient();
+
+  const { data: events } = await supabase
+    .from("events")
+    .select("*")
+    .order("event_date", { ascending: false });
+
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+
+      {/* Header */}
+
+      <div className="flex justify-between items-center mb-8">
+
         <div>
-          <h1 className="font-serif text-3xl font-bold text-white mb-1">Events</h1>
-          <p className="text-white/40 text-sm">Create, edit, and publish Lucid Hub events.</p>
+          <h1 className="text-3xl font-bold text-white">
+            Events
+          </h1>
+
+          <p className="text-white/40">
+            Manage all Lucid Hub events
+          </p>
         </div>
-        <button className="bg-[#1A1AFF] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#3B3BFF] transition-colors">
+
+        <Link
+          href="/admin/events/create"
+          className="bg-[#1A1AFF] hover:bg-[#3131ff] text-white px-5 py-3 rounded-xl font-semibold"
+        >
           + Create Event
-        </button>
+        </Link>
+
       </div>
-      <div className="bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10">
-              {['Event Title','Type','Date','Registered','Status','Actions'].map(h => (
-                <th key={h} className="text-left px-6 py-4 text-white/40 text-xs uppercase tracking-wider font-semibold">{h}</th>
-              ))}
+
+      {/* Search */}
+
+      <div className="mb-6">
+
+        <input
+          placeholder="Search events..."
+          className="w-full rounded-xl bg-white/5 border border-white/10 px-5 py-3 text-white outline-none focus:border-[#1A1AFF]"
+        />
+
+      </div>
+
+      {/* Table */}
+
+      <div className="rounded-2xl border border-white/10 overflow-hidden">
+
+        <table className="w-full">
+
+          <thead className="bg-white/5">
+
+            <tr>
+
+              <th className="text-left p-4 text-white/60">
+                Title
+              </th>
+
+              <th className="text-left p-4 text-white/60">
+                Type
+              </th>
+
+              <th className="text-left p-4 text-white/60">
+                Date
+              </th>
+
+              <th className="text-left p-4 text-white/60">
+                Status
+              </th>
+
+              <th className="text-left p-4 text-white/60">
+                Registrations
+              </th>
+
+              <th className="text-left p-4 text-white/60">
+                Actions
+              </th>
+
             </tr>
+
           </thead>
+
           <tbody>
-            {[
-              { title:'Leadership in the AI Era', type:'Webinar',    date:'Jul 14, 2025', reg:'2,400', status:'Published' },
-              { title:'Lucid Summit 2025',         type:'Conference', date:'Aug 22, 2025', reg:'540',   status:'Published' },
-              { title:'Digital Media Mastery',     type:'Training',   date:'Sep 05, 2025', reg:'22',    status:'Published' },
-            ].map((e) => (
-              <tr key={e.title} className="border-b border-white/[0.06] hover:bg-white/[0.03]">
-                <td className="px-6 py-4 text-white font-medium">{e.title}</td>
-                <td className="px-6 py-4 text-white/50">{e.type}</td>
-                <td className="px-6 py-4 text-white/50">{e.date}</td>
-                <td className="px-6 py-4 text-white/50">{e.reg}</td>
-                <td className="px-6 py-4">
-                  <span className="bg-teal-400/15 text-teal-400 text-xs font-semibold px-2 py-0.5 rounded-full">{e.status}</span>
+
+            {events?.length === 0 && (
+
+              <tr>
+
+                <td
+                  colSpan={6}
+                  className="text-center py-10 text-white/40"
+                >
+                  No events created yet.
                 </td>
-                <td className="px-6 py-4">
-                  <button className="text-[#F5AB00] text-xs hover:underline mr-3">Edit</button>
-                  <button className="text-red-400 text-xs hover:underline">Delete</button>
-                </td>
+
               </tr>
+
+            )}
+
+            {events?.map((event) => (
+
+              <tr
+                key={event.id}
+                className="border-t border-white/10"
+              >
+
+                <td className="p-4 text-white">
+                  {event.title}
+                </td>
+
+                <td className="p-4 text-white/70 capitalize">
+                  {event.event_type}
+                </td>
+
+                <td className="p-4 text-white/70">
+                  {new Date(event.event_date).toLocaleDateString()}
+                </td>
+
+                <td className="p-4">
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      event.is_published
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                  >
+                    {event.is_published ? "Published" : "Draft"}
+                  </span>
+
+                </td>
+
+                <td className="p-4 text-white">
+                  {event.registered_count}
+                </td>
+
+                <td className="p-4">
+
+                  <div className="flex gap-3">
+
+                    <Link
+                      href={`/admin/events/${event.id}`}
+                      className="text-blue-400 hover:underline"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      className="text-red-400"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
             ))}
+
           </tbody>
+
         </table>
+
       </div>
+
     </div>
-  )
+  );
 }
