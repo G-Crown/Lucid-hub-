@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 export async function createEvent(formData: FormData) {
+export async function updateEvent(id: string,formData: FormData) {
   const supabase = await createClient();
 
   const title = formData.get("title") as string;
