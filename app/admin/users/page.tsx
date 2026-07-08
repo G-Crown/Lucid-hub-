@@ -1,96 +1,139 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams?: {
+    search?: string;
+    role?: string;
+  };
+}) {
   const supabase = await createClient();
 
-  const { data: users = [] } = await supabase
+  const search = searchParams?.search ?? "";
+  const role = searchParams?.role ?? "";
+
+  let query = supabase
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false });
 
+  if (search) {
+    query = query.or(
+      `full_name.ilike.%${search}%,email.ilike.%${search}%`
+    );
+  }
+
+  if (role) {
+    query = query.eq("role", role);
+  }
+
+  const { data: users = [] } = await query;
+
   const totalMembers = users.length;
-  const admins = users.filter(u => u.role === "admin").length;
-  const superAdmins = users.filter(u => u.role === "super_admin").length;
+  const admins = users.filter((u) => u.role === "admin").length;
+  const superAdmins = users.filter((u) => u.role === "super_admin").length;
 
   return (
     <div className="p-8">
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          User Management
-        </h1>
+      <div className="flex justify-between items-center mb-8">
 
-        <p className="text-white/50">
-          Manage Lucid Hub members
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold text-white">
+            User Management
+          </h1>
+
+          <p className="text-white/50">
+            Manage Lucid Hub members
+          </p>
+        </div>
+
       </div>
 
-      {/* Statistics */}
+      {/* Summary */}
 
       <div className="grid grid-cols-3 gap-5 mb-8">
 
         <div className="bg-white/[0.04] rounded-2xl border border-white/10 p-6">
-          <div className="text-3xl font-bold text-[#1A1AFF]">
+          <div className="text-3xl text-[#1A1AFF] font-bold">
             {totalMembers}
           </div>
 
-          <p className="text-white/50">
+          <div className="text-white/50">
             Members
-          </p>
+          </div>
         </div>
 
         <div className="bg-white/[0.04] rounded-2xl border border-white/10 p-6">
-          <div className="text-3xl font-bold text-[#F5AB00]">
+          <div className="text-3xl text-[#F5AB00] font-bold">
             {admins}
           </div>
 
-          <p className="text-white/50">
+          <div className="text-white/50">
             Admins
-          </p>
+          </div>
         </div>
 
         <div className="bg-white/[0.04] rounded-2xl border border-white/10 p-6">
-          <div className="text-3xl font-bold text-green-400">
+          <div className="text-3xl text-green-400 font-bold">
             {superAdmins}
           </div>
 
-          <p className="text-white/50">
+          <div className="text-white/50">
             Super Admins
-          </p>
+          </div>
         </div>
 
       </div>
 
-      {/* Users Table */}
+      {/* Filters */}
 
-      <div className="bg-white/[0.04] rounded-2xl border border-white/10 overflow-hidden">
+      <form className="flex gap-4 mb-6">
+
+        <input
+          name="search"
+          defaultValue={search}
+          placeholder="Search name or email..."
+          className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white"
+        />
+
+        <select
+          name="role"
+          defaultValue={role}
+          className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white"
+        >
+          <option value="">All Roles</option>
+          <option value="member">Member</option>
+          <option value="mentor">Mentor</option>
+          <option value="admin">Admin</option>
+          <option value="super_admin">Super Admin</option>
+        </select>
+
+        <button
+          className="bg-[#1A1AFF] px-6 rounded-xl text-white"
+        >
+          Search
+        </button>
+
+      </form>
+
+      {/* Table */}
+
+      <div className="rounded-2xl overflow-hidden border border-white/10">
 
         <table className="w-full">
 
-          <thead className="bg-white/5">
+          <thead className="bg-white/[0.04]">
 
             <tr>
 
-              <th className="text-left p-4 text-white/70">
-                Name
-              </th>
-
-              <th className="text-left p-4 text-white/70">
-                Email
-              </th>
-
-              <th className="text-left p-4 text-white/70">
-                Role
-              </th>
-
-              <th className="text-left p-4 text-white/70">
-                Joined
-              </th>
-
-              <th className="text-left p-4 text-white/70">
-                Action
-              </th>
+              <th className="text-left p-4 text-white/60">Name</th>
+              <th className="text-left p-4 text-white/60">Email</th>
+              <th className="text-left p-4 text-white/60">Role</th>
+              <th className="text-left p-4 text-white/60">Joined</th>
+              <th className="text-left p-4 text-white/60">Actions</th>
 
             </tr>
 
@@ -106,7 +149,7 @@ export default async function UsersPage() {
               >
 
                 <td className="p-4 text-white">
-                  {user.full_name || "No Name"}
+                  {user.full_name || "Unnamed"}
                 </td>
 
                 <td className="p-4 text-white/60">
@@ -115,10 +158,8 @@ export default async function UsersPage() {
 
                 <td className="p-4">
 
-                  <span className="px-3 py-1 rounded-full text-xs bg-[#1A1AFF]/20 text-[#7d7dff]">
-
+                  <span className="px-3 py-1 rounded-full bg-[#1A1AFF]/20 text-[#8c8cff] text-xs">
                     {user.role}
-
                   </span>
 
                 </td>
@@ -129,13 +170,20 @@ export default async function UsersPage() {
 
                 </td>
 
-                <td className="p-4">
+                <td className="p-4 flex gap-4">
 
                   <Link
                     href={`/admin/users/${user.id}`}
                     className="text-[#F5AB00]"
                   >
                     View
+                  </Link>
+
+                  <Link
+                    href={`/admin/users/${user.id}/edit`}
+                    className="text-green-400"
+                  >
+                    Edit
                   </Link>
 
                 </td>
