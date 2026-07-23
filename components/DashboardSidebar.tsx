@@ -5,13 +5,14 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',   href: '/admin/dashboard',  icon: '📊' },
-  { label: 'Events',      href: '/admin/events',      icon: '📅' },
-  { label: 'Mentorship',  href: '/admin/mentorship',  icon: '🤝' },
-  { label: 'Users',       href: '/admin/users',       icon: '👥' },
-  { label: 'Resources',   href: '/admin/resources',   icon: '📚' },
-  { label: 'Settings',    href: '/admin/settings',    icon: '⚙️' },
-]
+  { label: "Dashboard", href: "/admin/dashboard", icon: "📊" },
+  { label: "Events", href: "/admin/events", icon: "📅" },
+  { label: "Donations", href: "/admin/donations", icon: "💳" },
+  { label: "Mentorship", href: "/admin/mentorship", icon: "👥" },
+  { label: "Users", href: "/admin/users", icon: "👤" },
+  { label: "Resources", href: "/admin/resources", icon: "📚" },
+  { label: "Settings", href: "/admin/settings", icon: "⚙️" },
+];
 
 export default function DashboardSidebar() {
   const pathname = usePathname()

@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 export async function createEvent(formData: FormData) {
-export async function updateEvent(id: string,formData: FormData) {
   const supabase = await createClient();
 
   const title = formData.get("title") as string;
@@ -61,4 +60,80 @@ export async function updateEvent(id: string,formData: FormData) {
   revalidatePath("/admin/dashboard");
 
   redirect("/admin/events");
+}
+
+export async function updateEvent(
+  id: string,
+  formData: FormData
+) {
+  const supabase = await createClient();
+
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const event_type = formData.get("event_type") as string;
+  const event_date = formData.get("event_date") as string;
+  const end_date = formData.get("end_date") as string;
+  const location = formData.get("location") as string;
+  const meeting_link = formData.get("meeting_link") as string;
+  const price = Number(formData.get("price") || 0);
+  const capacity = Number(formData.get("capacity") || 0);
+
+  const is_virtual = formData.get("is_virtual") === "on";
+  const is_published = formData.get("is_published") === "on";
+
+  await supabase
+    .from("events")
+    .update({
+      title,
+      description,
+      event_type,
+      event_date,
+      end_date,
+      location,
+      meeting_link,
+      price,
+      capacity,
+      is_virtual,
+      is_published,
+    })
+    .eq("id", id);
+
+  revalidatePath("/admin/events");
+  revalidatePath("/admin/dashboard");
+
+  redirect("/admin/events");
+}
+
+export async function deleteEvent(id: string) {
+  const supabase = await createClient();
+
+  await supabase
+    .from("events")
+    .delete()
+    .eq("id", id);
+
+  revalidatePath("/admin/events");
+  revalidatePath("/admin/dashboard");
+}
+
+export async function publishEvent(id: string) {
+  const supabase = await createClient();
+
+  await supabase
+    .from("events")
+    .update({ is_published: true })
+    .eq("id", id);
+
+  revalidatePath("/admin/events");
+}
+
+export async function unpublishEvent(id: string) {
+  const supabase = await createClient();
+
+  await supabase
+    .from("events")
+    .update({ is_published: false })
+    .eq("id", id);
+
+  revalidatePath("/admin/events");
 }

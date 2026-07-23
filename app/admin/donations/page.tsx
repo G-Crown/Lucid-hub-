@@ -1,27 +1,47 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
+
+import DonationStats from "./components/DonationStats";
+import DonationFilters from "./components/DonationFilters";
+import DonationTable from "./components/DonationTable";
+import Pagination from "@/components/admin/Pagination";
+
+interface Props {
+  searchParams?: {
+    search?: string;
+    status?: string;
+    provider?: string;
+    page?: string;
+    sort?: string;
+    order?: string;
+  };
+}
 
 export default async function DonationsPage({
   searchParams,
-}: {
-  searchParams?: {
-    status?: string;
-    search?: string;
-  };
-}) {
+}: Props) {
   const supabase = await createClient();
 
-  const status = searchParams?.status || "";
-  const search = searchParams?.search || "";
+  const search = searchParams?.search ?? "";
+  const status = searchParams?.status ?? "";
+  const provider = searchParams?.provider ?? "";
+
+  const page = Number(searchParams?.page ?? 1);
+
+  const PAGE_SIZE = 20;
+
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  const sort = searchParams?.sort ?? "created_at";
+  const order = searchParams?.order ?? "desc";
+
+  // ---------- Table Query ----------
 
   let query = supabase
     .from("donations")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (status) {
-    query = query.eq("status", status);
-  }
+    .select("*", {
+      count: "exact",
+    });
 
   if (search) {
     query = query.or(
@@ -29,224 +49,127 @@ export default async function DonationsPage({
     );
   }
 
-  const { data: donations = [] } = await query;
+  if (status) {
+    query = query.eq("status", status);
+  }
 
-  const totalAmount = donations
-    .filter((d) => d.status === "completed")
-    .reduce((sum, d) => sum + Number(d.amount), 0);
+  if (provider) {
+    query = query.eq("provider", provider);
+  }
 
-  const completed = donations.filter(
-    (d) => d.status === "completed"
-  ).length;
+  query = query
+    .order(sort, {
+      ascending: order === "asc",
+    })
+    .range(from, to);
 
-  const pending = donations.filter(
-    (d) => d.status === "pending"
-  ).length;
+  const {
+    data: donations = [],
+    error,
+    count,
+  } = await query;
 
-  const recurring = donations.filter(
-    (d) => d.is_recurring
-  ).length;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // ---------- Stats Query ----------
+
+  const { data: allDonations } = await supabase
+  .from("donations")
+  .select("amount,status,is_recurring");
+
+  const donationStats = allDonations ?? [];
+
+  const totalRevenue = donationStats.reduce(
+  (
+    sum: number,
+    donation: {
+      amount: number | string;
+      status: string;
+      is_recurring: boolean;
+    }
+  ) =>
+    donation.status === "completed"
+      ? sum + Number(donation.amount)
+      : sum,
+  0
+  );
+
+const completed = donationStats.filter(
+  (d) => d.status === "completed"
+).length;
+
+const recurring = donationStats.filter(
+  (d) => d.is_recurring
+).length;
+  const totalPages = Math.ceil(
+    (count ?? 0) / PAGE_SIZE
+  );
 
   return (
     <div className="p-8">
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8">
 
-        <div>
-          <h1 className="text-3xl font-bold text-white">
-            Donations
-          </h1>
+        <h1 className="text-3xl font-bold text-white">
+          Donations
+        </h1>
 
-          <p className="text-white/50">
-            Manage all donations
+        <p className="text-white/50">
+          Monitor all donations made to Lucid Hub
+        </p>
+
+      </div>
+
+      <DonationStats
+        totalDonations={count ?? 0}
+        totalRevenue={totalRevenue}
+        completed={completed}
+        recurring={recurring}
+      />
+
+      <DonationFilters
+        search={search}
+        status={status}
+        provider={provider}
+      />
+
+      <div className="mb-4 text-sm text-white/40">
+        Showing{" "}
+        <span className="text-white font-semibold">
+          {donations.length}
+        </span>{" "}
+        of{" "}
+        <span className="text-white font-semibold">
+          {count ?? 0}
+        </span>{" "}
+        donations
+      </div>
+
+      {donations.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 p-16 text-center">
+
+          <h2 className="text-xl text-white mb-2">
+            No donations found
+          </h2>
+
+          <p className="text-white/40">
+            Try changing your search or filters.
           </p>
+
         </div>
+      ) : (
+        <>
+          <DonationTable donations={donations} />
 
-      </div>
-
-      {/* Statistics */}
-
-      <div className="grid grid-cols-4 gap-5 mb-8">
-
-        <div className="bg-white/[0.04] border border-white/10 rounded-xl p-5">
-          <div className="text-3xl font-bold text-green-400">
-            ₦{totalAmount.toLocaleString()}
-          </div>
-          <div className="text-white/50">
-            Total Received
-          </div>
-        </div>
-
-        <div className="bg-white/[0.04] border border-white/10 rounded-xl p-5">
-          <div className="text-3xl font-bold text-[#1A1AFF]">
-            {completed}
-          </div>
-          <div className="text-white/50">
-            Completed
-          </div>
-        </div>
-
-        <div className="bg-white/[0.04] border border-white/10 rounded-xl p-5">
-          <div className="text-3xl font-bold text-yellow-400">
-            {pending}
-          </div>
-          <div className="text-white/50">
-            Pending
-          </div>
-        </div>
-
-        <div className="bg-white/[0.04] border border-white/10 rounded-xl p-5">
-          <div className="text-3xl font-bold text-purple-400">
-            {recurring}
-          </div>
-          <div className="text-white/50">
-            Recurring
-          </div>
-        </div>
-
-      </div>
-
-      {/* Search */}
-
-      <form className="flex gap-4 mb-6">
-
-        <input
-          name="search"
-          defaultValue={search}
-          placeholder="Search donor..."
-          className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white"
-        />
-
-        <select
-          name="status"
-          defaultValue={status}
-          className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white"
-        >
-          <option value="">All Status</option>
-          <option value="completed">Completed</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-
-        <button className="bg-[#1A1AFF] px-6 rounded-xl text-white">
-          Filter
-        </button>
-
-      </form>
-
-      {/* Table */}
-
-      <div className="rounded-xl overflow-hidden border border-white/10">
-
-        <table className="w-full">
-
-          <thead className="bg-white/[0.05]">
-
-            <tr>
-
-              <th className="text-left p-4 text-white/60">
-                Donor
-              </th>
-
-              <th className="text-left p-4 text-white/60">
-                Amount
-              </th>
-
-              <th className="text-left p-4 text-white/60">
-                Status
-              </th>
-
-              <th className="text-left p-4 text-white/60">
-                Recurring
-              </th>
-
-              <th className="text-left p-4 text-white/60">
-                Date
-              </th>
-
-              <th className="text-left p-4 text-white/60">
-                Details
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {donations.map((donation) => (
-
-              <tr
-                key={donation.id}
-                className="border-t border-white/10"
-              >
-
-                <td className="p-4">
-
-                  <div className="text-white">
-                    {donation.donor_name}
-                  </div>
-
-                  <div className="text-white/40 text-sm">
-                    {donation.donor_email}
-                  </div>
-
-                </td>
-
-                <td className="p-4 text-green-400 font-semibold">
-                  ₦{Number(donation.amount).toLocaleString()}
-                </td>
-
-                <td className="p-4">
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      donation.status === "completed"
-                        ? "bg-green-500/20 text-green-400"
-                        : donation.status === "pending"
-                        ? "bg-yellow-500/20 text-yellow-400"
-                        : "bg-red-500/20 text-red-400"
-                    }`}
-                  >
-                    {donation.status}
-                  </span>
-
-                </td>
-
-                <td className="p-4 text-white">
-
-                  {donation.is_recurring ? "Yes" : "No"}
-
-                </td>
-
-                <td className="p-4 text-white/50">
-
-                  {new Date(
-                    donation.created_at
-                  ).toLocaleDateString()}
-
-                </td>
-
-                <td className="p-4">
-
-                  <Link
-                    href={`/admin/donations/${donation.id}`}
-                    className="text-[#F5AB00]"
-                  >
-                    View
-                  </Link>
-
-                </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            basePath="/admin/donations"
+          />
+        </>
+      )}
 
     </div>
   );

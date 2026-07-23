@@ -29,11 +29,17 @@ export default async function UsersPage({
     query = query.eq("role", role);
   }
 
-  const { data: users = [] } = await query;
+  const { data, error } = await query;
 
-  const totalMembers = users.length;
-  const admins = users.filter((u) => u.role === "admin").length;
-  const superAdmins = users.filter((u) => u.role === "super_admin").length;
+if (error) {
+  console.error("Users Query Error:", error);
+}
+
+const users = data ?? [];
+
+const totalMembers = users.length;
+const admins = users.filter((u) => u.role === "admin").length;
+const superAdmins = users.filter((u) => u.role === "super_admin").length;
 
   return (
     <div className="p-8">
@@ -158,9 +164,19 @@ export default async function UsersPage({
 
                 <td className="p-4">
 
-                  <span className="px-3 py-1 rounded-full bg-[#1A1AFF]/20 text-[#8c8cff] text-xs">
-                    {user.role}
-                  </span>
+                  <span
+          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            user.role === "super_admin"
+               ? "bg-yellow-500/20 text-yellow-400"
+               : user.role === "admin"
+               ? "bg-blue-500/20 text-blue-400"
+               : user.role === "mentor"
+                ? "bg-teal-500/20 text-teal-400"
+               : "bg-gray-500/20 text-gray-300"
+          }`}
+        >
+          {user.role.replace("_", " ")}
+        </span>
 
                 </td>
 
